@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure NativeWind processes styles correctly */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+}
