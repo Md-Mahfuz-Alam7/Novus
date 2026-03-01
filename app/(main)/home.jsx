@@ -1,25 +1,46 @@
+import { useUser } from "@clerk/clerk-expo";
 import CourseList from "../../components/course-list";
 import SettingsMenu from "../../components/setting-menu";
 import { Box } from "../../components/ui/box";
 import { Input, InputField, InputSlot } from "../../components/ui/input";
 import { Spinner } from "../../components/ui/spinner";
 import { Text } from "../../components/ui/text";
-import { dummyCourses } from "../../constants/data";
+import { courseService } from "../../services/courseService";
 
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getFullName } from "../../utils/name";
 
-const home = () => {
+
+const Home = () => {
     const safearea = useSafeAreaInsets();
-    const [loading, setLoading] = useState(false);
-    const [courses, setCourses] = useState(dummyCourses);
+    const [loading, setLoading] = useState(true);
+    const [courses, setCourses] = useState([]);
 
     const [query, setQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
+
+    const { user } = useUser();
+    
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+
+    const fetchCourses = async () => {
+        try {
+            setLoading(true);
+            const data = await courseService.getAllCourses();
+            setCourses(data);
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedQuery(query), 500);
@@ -28,14 +49,23 @@ const home = () => {
 
     useEffect(() => {
         if (debouncedQuery) {
-            const filtered = dummyCourses.filter(course => 
-                course.title.toLowerCase().includes(debouncedQuery.toLowerCase())
-            );
-            setCourses(filtered);
+            searchCourses(debouncedQuery);
         } else {
-            setCourses(dummyCourses);
+            fetchCourses();
         }
     }, [debouncedQuery]);
+
+    const searchCourses = async (searchTerm) => {
+        try {
+            setLoading(true);
+            const data = await courseService.searchCourses(searchTerm);
+            setCourses(data);
+        } catch (error) {
+            console.error('Error searching courses:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <View className="flex-1 px-7" style={{ paddingTop: safearea.top }}>
@@ -45,7 +75,7 @@ const home = () => {
                 {/* name & avatar */}
                 <Box className="flex-row items-center gap-3">
                     <Image
-                        source={require("../../assets/images/avatar.png")}
+                        source={{ uri: user?.imageUrl || user?.profileImageUrl }}
                         className="w-12 h-12 rounded-full"
                     />
                     <Box>
@@ -53,7 +83,7 @@ const home = () => {
                             Welcome !
                         </Text>
                         <Text size="lg" className="font-medium">
-                            Mihsan Alam
+                           {getFullName(user)}
                         </Text>
                     </Box>
                 </Box>
@@ -107,4 +137,4 @@ const home = () => {
     );
 };
 
-export default home;
+export default Home;

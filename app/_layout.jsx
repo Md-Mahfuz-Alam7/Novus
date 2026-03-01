@@ -37,6 +37,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import "../global.css";
 import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -64,8 +65,8 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
       <MainLayout />
     </ClerkProvider>
   );
-}
+};

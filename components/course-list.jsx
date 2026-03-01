@@ -1,15 +1,16 @@
 import React from "react";
-import { FlatList, Image, Pressable, StyleSheet } from "react-native";
+import { FlatList, Image, Pressable } from "react-native";
 import { Box } from "./ui/box";
 import { Text } from "./ui/text";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { urlFor } from "../lib/sanity";
 
 const CourseList = ({ data }) => {
     return (
         <FlatList
             data={data}
-            keyExtractor={(item)=> item?.id}
+            keyExtractor={(item)=> item?._id}
             renderItem = {({item}) => <CourseCard item={item}/>}
             contentContainerClassName="pt-5"
             showsVerticalScrollIndicator= {false}
@@ -24,20 +25,18 @@ const CourseCard = ({ item }) => {
                 router.push({
                     pathname: "(main)/course-details",
                     params: {
-                        id: item?.id,
+                        id: item?._id,
                         title: item?.title,
                         description: item?.description,
-                        thumbnailURL: item?.thumbnailURL,
-                        type: item?.type,
                     },
                 })
             }
-            className="flex-1 gap-4 w-full bg-secondary-200 p-2 pb-5 rounded-[28px] border border-secondary-300"
+            className="flex-1 gap-4 w-full bg-secondary-200 p-2 pb-5 rounded-[28px] border border-secondary-300 mb-4"
             >
                 {/* course thumbnail */}
                 <Box className="relative w-full h-60">
                     <Image
-                        source={require("../assets/images/dummy-course.png")}
+                        source={item?.image ? { uri: urlFor(item.image).url() } : require("../assets/images/dummy-course.png")}
                         className= "w-full h-full rounded-3xl object-cover"
                     />
                     <Box className="absolute h-full w-full items-center justify-center">
@@ -53,13 +52,15 @@ const CourseCard = ({ item }) => {
                         {item?.title}
                     </Text>
 
-                    <Box className="flex-row items-center gap-4">
-                        <Text size="sm" className="text-[#2E5E99]">{item?.type === 'free' ? 'Free' : 'Premium'}</Text>
-                        <Box className="flex-row items-center gap-1">
-                            <Ionicons name ="time-outline" className="mt-[1px]" size={14} color="rgba(0,0,0,0.5)" />
-                        <Text size="sm" className="text-secondary-500">
-                            4h, 20 mins 
-                        </Text>
+                    <Box className="flex-row items-center gap-4 mt-2">
+                        <Box className="bg-[#2E5E99] px-3 py-1.5 rounded-full">
+                            <Text size="sm" className="text-white font-semibold">{item?.price > 0 ? `$${item?.price}` : 'Free'}</Text>
+                        </Box>
+                        <Box className="flex-row items-center gap-1.5 bg-white px-3 py-1.5 rounded-full">
+                            <Ionicons name ="time-outline" size={16} color="#2E5E99" />
+                            <Text size="sm" className="text-[#2E5E99] font-semibold">
+                                {item?.duration}h
+                            </Text>
                         </Box>
                     </Box>
                 </Box>

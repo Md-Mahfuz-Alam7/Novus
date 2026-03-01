@@ -12,18 +12,7 @@ const index = () => {
    const { isSignedIn, isLoaded } = useAuth()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        router.replace("/(auth)/welcome");
-      } catch (e) {
-        console.log("Navigation failed, will retry", e);
-      }
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if(!isLoaded) return; // Wait until the auth states loaded
+    if(!isLoaded) return;
 
     const timer = setTimeout(() => {
       if (isSignedIn) {
